@@ -8,7 +8,7 @@ const logger = (req, res, next) => {
 
 app.set("view engine", "pug");
 app.set("views", "views");
-app.use(express.urlencoded());
+app.use(express.urlencoded({extended: true}));
 app.use(express.static("public"));
 app.use(logger);
 
