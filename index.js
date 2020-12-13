@@ -1,4 +1,5 @@
 const express = require('express');
+const cookieSession = require('cookie-session')
 const app = express();
 
 const logger = (req, res, next) => {
@@ -9,6 +10,10 @@ const logger = (req, res, next) => {
 app.set("view engine", "pug");
 app.set("views", "views");
 app.use(express.urlencoded({extended: true}));
+app.use(cookieSession({
+    secret: "una_cadena_secreta",
+    maxAge: 24 * 60 * 60 * 1000
+}));
 app.use(express.static("public"));
 app.use(logger);
 
@@ -16,11 +21,12 @@ app.get('/', (req, res) => {
     const name = req.query.name;
     const age = req.query.age;
 
-    //res.send(`<h1>Hola ${name}, tienes ${age} años </h1>`);
+    req.session.views = ( req.session.views || 0) + 1
+
     const notes = [
       "Nota 1", "Nota 2", "Nota 3",  
     ];
-    res.render("index", {notes} );
+    res.render("index", { notes, views: req.session.views });
 });
 
 app.get("/notes/new", (req, res) => {
