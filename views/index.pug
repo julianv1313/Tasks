@@ -1,8 +1,10 @@
 extends layout
 
 block content
+        a(href="/notes/new") Nueva nota
         each note in notes  
-            p= note
+            div
+                h3= note.title
+                p= note.body
 
-        div
-            h2 Vistas: #{views}
+    
