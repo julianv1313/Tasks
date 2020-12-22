@@ -35,8 +35,10 @@ app.get("/notes/new", (req, res) => {
 
 // permite crear una nota
 app.post("/notes", (req, res) => {
-    const id = (req.session.id || 0) + 1; 
-    req.session.notes[id] = { title: req.body.title, body: req.body.body }
+    req.session.id = (req.session.id || 0) + 1; 
+    const id = req.session.id
+    req.session.notes = req.session.notes || [];
+    req.session.notes.push({ id: id, title: req.body.title, body: req.body.body }) ;
     res.redirect("/");
 });
 

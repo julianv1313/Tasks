@@ -2,18 +2,16 @@ extends layout
 
 block content
     form(action="/notes", method="post")
+      
          div
-            label(for="name") Titulo
+            div
+               label(for="name") Titulo
             input(type="text", id="title", name="title") 
-        
-         div
-            label(for="password") contraseña
-            input(type="password", id="password", name="password")
 
          div
-            label(for="body") texto
+            div
+               label(for="body") texto
             textarea( id="body", name="body", rows="8")   
    
-
          button(type="submit") Enviar
 
