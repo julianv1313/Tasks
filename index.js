@@ -1,6 +1,12 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const Note = require("./models/Note")
 const cookieSession = require('cookie-session')
 const app = express();
+
+mongoose.connect("mongodb://localhost:27017/Notes", { useNewUrlParser: true});
+
+
 
 /*const logger = (req, res, next) => {
     console.log("Nueva petición http");
@@ -18,13 +24,13 @@ app.use(express.static("public"));
 /*app.use(logger);*/
 
 // muestra la lista de notas
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     /*const name = req.query.name;
     const age = req.query.age;
 
     req.session.views = ( req.session.views || 0) + 1*/
 
-   const notes = req.session.notes || [];
+   const notes = await Note.find();
     res.render("index", { notes });
 });
 
@@ -34,11 +40,19 @@ app.get("/notes/new", (req, res) => {
 });
 
 // permite crear una nota
-app.post("/notes", (req, res) => {
-    req.session.id = (req.session.id || 0) + 1; 
-    const id = req.session.id
-    req.session.notes = req.session.notes || [];
-    req.session.notes.push({ id: id, title: req.body.title, body: req.body.body }) ;
+app.post("/notes", async (req, res, next) => {
+    const data = {
+        title: req.body.title,
+        body: req.body.body
+    };
+
+    try {
+        const note = new Note(data);
+        await note.save();
+    } catch(err) {
+      return next (e);
+    }
+
     res.redirect("/");
 });
 
