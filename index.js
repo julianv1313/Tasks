@@ -76,8 +76,46 @@ app.get("/notes/:id", async (req, res) => {
     res.render("show", { notes: notes, currentNote: note });
   });
 
-/*app.use((err, req, res, next ) =>{
-    res.status(500).send(`<h1>Error inesperado</h1><p>${err.message}</p>`);
-}) */
+//muestra el formulario para editar
+
+app.get("/notes/:id/edit", async (req, res, next) => {
+    try {
+        const notes = await Note.find();
+        const note = await Note.findById(req.params.id);
+
+        res.render("edit", { notes: notes, currentNote: note});
+    } catch (err) {
+        return next (err);
+    }
+    
+});
+
+
+// Actualiza una nota  
+app.patch("/notes/:id", async  (req, res, next) => {
+    const id = req.params.id;
+    const note = await Note.findById(id);
+    
+    note.title = req.body.title;
+    note.body = req.body.body
+
+    try {
+        await note.save({});
+        res.status(204).send({});
+    } catch(err) {
+        return next(err);
+    }
+
+    
+});
+
+app.delete("/notes/:id", async (req, res, next) => {
+    try {
+        await Note.deleteOne({ _id: req.params.id});
+        res.status(204).send({});
+    } catch (err) {
+        return next(err);
+    }
+});
 
 app.listen(3000, () => console.log("Listening on port 3000"));
