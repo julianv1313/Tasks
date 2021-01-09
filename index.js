@@ -20,23 +20,19 @@ app.use(cookieSession({
     secret: "una_cadena_secreta",
     maxAge: 24 * 60 * 60 * 1000
 }));
-app.use(express.static("public"));
+app.use("/assets", express.static("assets"));
 /*app.use(logger);*/
 
 // muestra la lista de notas
 app.get('/', async (req, res) => {
-    /*const name = req.query.name;
-    const age = req.query.age;
-
-    req.session.views = ( req.session.views || 0) + 1*/
-
    const notes = await Note.find();
     res.render("index", { notes });
 });
 
 // muestra el formulario para crear una nota
-app.get("/notes/new", (req, res) => {
-    res.render("new");
+app.get("/notes/new", async (req, res) => {
+    const notes = await Note.find();
+    res.render("new", { notes });
 });
 
 // permite crear una nota
@@ -50,7 +46,7 @@ app.post("/notes", async (req, res, next) => {
         const note = new Note(data);
         await note.save();
     } catch(err) {
-      return next (e);
+      return next (err);
     }
 
     res.redirect("/");
@@ -71,5 +67,17 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send("Algo salio mal");
 });*/
+
+// muestra una nota
+
+app.get("/notes/:id", async (req, res) => {
+    const notes = await Note.find({ user: res.locals.user });
+    const note = await Note.findById(req.params.id);
+    res.render("show", { notes: notes, currentNote: note });
+  });
+
+app.use((err, req, res, next ) =>{
+    res.status(500).send(`<h1>Error inesperado</h1><p>${err.message}</p>`);
+}) 
 
 app.listen(3000, () => console.log("Listening on port 3000"));

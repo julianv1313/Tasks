@@ -1,17 +1,33 @@
-extends layout
+extends index
 
-block content
-    form(action="/notes", method="post")
-      
-         div
-            div
-               label(for="name") Titulo
-            input(type="text", id="title", name="title") 
+block body
+  div(class="note-form-page")
+    form(action="/notes", method="post" enctype="multipart/form-data")
+      div
+        input(type="text", id="title", name="title", placeholder="Escribe el título", autocomplete="off" autofocus)
+      div
+        textarea(id="body", name="body", rows="8", placeholder="Escribe el texto ...")
 
-         div
-            div
-               label(for="body") texto
-            textarea( id="body", name="body", rows="8")   
-   
-         button(type="submit") Enviar
+      div(class="form-actions")
+        a(href="/", class="btn") Cancel
+        button(type="submit", class="btn btn-primary") Create Note
 
+  script.
+    var textarea = document.getElementById("body");
+    var heightLimit = 1000; /* Maximum height: 1000px */
+
+    textarea.oninput = function() {
+      textarea.style.height = ""; /* Reset the height*/
+      textarea.style.height = Math.min(textarea.scrollHeight, heightLimit) + "px";
+    };
+
+    /*var errorIcon = document.querySelector(".error-icon");
+    errorIcon.addEventListener("mouseover", function() {
+      var errorText = document.querySelector(".error-text");
+      errorText.classList.add("show");
+    });
+    
+    errorIcon.addEventListener("mouseout", function() {
+      var errorText = document.querySelector(".error-text");
+      errorText.classList.remove("show");
+    });*/
