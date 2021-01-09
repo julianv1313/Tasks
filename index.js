@@ -1,7 +1,8 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
 const Note = require("./models/Note")
-const cookieSession = require('cookie-session')
+const cookieSession = require("cookie-session")
+const md = require("marked");
 const app = express();
 
 mongoose.connect("mongodb://localhost:27017/Notes", { useNewUrlParser: true});
@@ -73,7 +74,7 @@ app.use((err, req, res, next) => {
 app.get("/notes/:id", async (req, res) => {
     const notes = await Note.find({ user: res.locals.user });
     const note = await Note.findById(req.params.id);
-    res.render("show", { notes: notes, currentNote: note });
+    res.render("show", { notes: notes, currentNote: note, md: md });
   });
 
 //muestra el formulario para editar
