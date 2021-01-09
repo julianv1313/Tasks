@@ -76,8 +76,8 @@ app.get("/notes/:id", async (req, res) => {
     res.render("show", { notes: notes, currentNote: note });
   });
 
-app.use((err, req, res, next ) =>{
+/*app.use((err, req, res, next ) =>{
     res.status(500).send(`<h1>Error inesperado</h1><p>${err.message}</p>`);
-}) 
+}) */
 
 app.listen(3000, () => console.log("Listening on port 3000"));
