@@ -4,6 +4,7 @@
   "description": "Una aplicacion para la toma de notas",
   "main": "index.js",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "cookie-session": "^1.4.0",
     "express": "^4.17.1",
     "marked": "^1.2.7",
