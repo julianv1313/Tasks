@@ -18,26 +18,48 @@ app.use(cookieSession({
 }));
 app.use("/assets", express.static("assets"));
 
+const requireUser = (req, res, next) => {
+    if (!res.locals.user) {
+        return res.redirect("/login");
+    }
+
+    next();
+}
+
+app.use(async (req, res, next) => {
+    const userId = req.session.userId;
+    if (userId) {
+        const user = await User.findById(userId);
+        if (user) {
+            res.locals.user = user;
+        } else {
+            delete req.session.userId;
+        }
+    }
+
+    next();
+})
 // Muestra la lista de notas.
 
-app.get('/', async (req, res) => {
-   const notes = await Note.find();
+app.get('/', requireUser, async (req, res) => {
+   const notes = await Note.find({ user: res.locals.user });
     res.render("index", { notes });
 });
 
 // Muestra el formulario para crear una nota.
 
-app.get("/notes/new", async (req, res) => {
-    const notes = await Note.find();
+app.get("/notes/new", requireUser, async (req, res) => {
+    const notes = await Note.find({ user: res.locals.user });
     res.render("new", { notes });
 });
 
 // Permite crear una nota.
 
-app.post("/notes", async (req, res, next) => {
+app.post("/notes", requireUser, async (req, res, next) => {
     const data = {
         title: req.body.title,
-        body: req.body.body
+        body: req.body.body,
+        user: res.locals.user
     };
 
     try {
@@ -52,7 +74,7 @@ app.post("/notes", async (req, res, next) => {
 
 // Muestra una nota.
 
-app.get("/notes/:id", async (req, res) => {
+app.get("/notes/:id", requireUser, async (req, res) => {
     const notes = await Note.find({ user: res.locals.user });
     const note = await Note.findById(req.params.id);
     res.render("show", { notes: notes, currentNote: note, md: md });
@@ -60,9 +82,9 @@ app.get("/notes/:id", async (req, res) => {
 
 // Muestra el formulario para editar.
 
-app.get("/notes/:id/edit", async (req, res, next) => {
+app.get("/notes/:id/edit", requireUser, async (req, res, next) => {
     try {
-        const notes = await Note.find();
+        const notes = await Note.find({ user: res.locals.user }); // adicional
         const note = await Note.findById(req.params.id);
 
         res.render("edit", { notes: notes, currentNote: note});
@@ -75,7 +97,7 @@ app.get("/notes/:id/edit", async (req, res, next) => {
 
 // Actualiza una nota.  
 
-app.patch("/notes/:id", async  (req, res, next) => {
+app.patch("/notes/:id", requireUser, async  (req, res, next) => {
     const id = req.params.id;
     const note = await Note.findById(id);
     
@@ -94,7 +116,7 @@ app.patch("/notes/:id", async  (req, res, next) => {
 
 // Elimina una nota.
 
-app.delete("/notes/:id", async (req, res, next) => {
+app.delete("/notes/:id", requireUser, async (req, res, next) => {
     try {
         await Note.deleteOne({ _id: req.params.id});
         res.status(204).send({});
@@ -137,10 +159,10 @@ app.post("/login", async (req, res, next) => {
     }
 });
 
-app.get("/logout", (req, res) => {
+app.get("/logout", requireUser, (req, res) => {
     res.session = null;
     res.clearCookie("session");
-    res,clearCookie("session.sig");
+    res.clearCookie("session.sig");
     res.redirect("/login");
 });
 
